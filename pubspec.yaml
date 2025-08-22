@@ -1,0 +1,21 @@
+name: pisti_mobile_flutter
+version: 1.0.0
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^8.0.0
+  firebase_core: ^2.0.0
+  cloud_firestore: ^3.0.0
+  firebase_auth: ^4.0.0
+  google_mobile_ads: ^2.0.0
+  shared_preferences: ^3.0.0
+  audioplayers: ^1.0.0
+  flutter_localizations:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
