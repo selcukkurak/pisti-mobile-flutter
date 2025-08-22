@@ -4,6 +4,7 @@ import '../../domain/models/player.dart';
 import '../../domain/models/playing_card.dart';
 import '../../domain/models/deck.dart';
 import '../../../core/services/sound_service.dart';
+import '../../../core/services/persistence_service.dart';
 import '../../../core/constants/game_constants.dart';
 
 // Events
@@ -29,6 +30,7 @@ class ResetGameEvent extends GameEvent {}
 // States
 class GameBloc extends Bloc<GameEvent, GameState> {
   late Deck _deck;
+  final PersistenceService _persistenceService = PersistenceService();
 
   GameBloc() : super(GameState(
     mode: GameMode.offline,
@@ -197,6 +199,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       gameState.winnerId = winner.id;
       gameState.phase = GamePhase.gameEnd;
       SoundType.gameEnd.play();
+      
+      // Save game statistics
+      await _saveGameStats(gameState);
     }
   }
 
@@ -277,4 +282,28 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
 extension FirstWhereOrNull<T> on Iterable<T> {
   T? get firstOrNull => isEmpty ? null : first;
+}
+
+// Add this method to GameBloc class
+extension GameBlocStats on GameBloc {
+  Future<void> _saveGameStats(GameState gameState) async {
+    // Increment games played
+    await _persistenceService.incrementGamesPlayed();
+    
+    // Find human player
+    final humanPlayer = gameState.players.firstWhere((p) => p.isHuman);
+    final isWinner = gameState.winnerId == humanPlayer.id;
+    
+    // Update win count if human player won
+    if (isWinner) {
+      await _persistenceService.incrementGamesWon();
+    }
+    
+    // Update high score
+    await _persistenceService.updateHighScore(humanPlayer.score);
+    
+    // Update Pişti statistics
+    await _persistenceService.addPistiCount(humanPlayer.pistiCount);
+    await _persistenceService.updateMaxPistiInGame(humanPlayer.pistiCount);
+  }
 }

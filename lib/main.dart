@@ -3,11 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'core/theme/app_theme.dart';
+import 'core/services/persistence_service.dart';
 import 'features/menu/presentation/pages/main_menu_page.dart';
 import 'features/game/presentation/bloc/game_bloc.dart';
 import 'features/settings/presentation/bloc/settings_bloc.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize persistence service
+  await PersistenceService().init();
+  
   runApp(PistiApp());
 }
 

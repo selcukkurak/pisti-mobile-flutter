@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../../core/services/persistence_service.dart';
 
 class StatisticsPage extends StatelessWidget {
+  final PersistenceService _persistenceService = PersistenceService();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,7 +41,7 @@ class StatisticsPage extends StatelessWidget {
                       Expanded(
                         child: _StatItem(
                           title: 'Toplam Oyun',
-                          value: '23',
+                          value: _persistenceService.getGamesPlayed().toString(),
                           icon: Icons.sports_esports,
                           color: Colors.blue,
                         ),
@@ -47,7 +50,7 @@ class StatisticsPage extends StatelessWidget {
                       Expanded(
                         child: _StatItem(
                           title: 'Kazanılan',
-                          value: '15',
+                          value: _persistenceService.getGamesWon().toString(),
                           icon: Icons.emoji_events,
                           color: Colors.amber,
                         ),
@@ -60,7 +63,7 @@ class StatisticsPage extends StatelessWidget {
                       Expanded(
                         child: _StatItem(
                           title: 'Kazanma Oranı',
-                          value: '%65',
+                          value: '${_persistenceService.getWinRate().toStringAsFixed(0)}%',
                           icon: Icons.trending_up,
                           color: Colors.green,
                         ),
@@ -69,7 +72,7 @@ class StatisticsPage extends StatelessWidget {
                       Expanded(
                         child: _StatItem(
                           title: 'En Yüksek Skor',
-                          value: '187',
+                          value: _persistenceService.getHighScore().toString(),
                           icon: Icons.stars,
                           color: Colors.purple,
                         ),
@@ -111,7 +114,7 @@ class StatisticsPage extends StatelessWidget {
                       Expanded(
                         child: _StatItem(
                           title: 'Toplam Pişti',
-                          value: '47',
+                          value: _persistenceService.getTotalPisti().toString(),
                           icon: Icons.celebration,
                           color: Colors.orange,
                         ),
@@ -120,7 +123,7 @@ class StatisticsPage extends StatelessWidget {
                       Expanded(
                         child: _StatItem(
                           title: 'Oyun Başına Ort.',
-                          value: '2.04',
+                          value: _persistenceService.getAveragePistiPerGame().toStringAsFixed(1),
                           icon: Icons.analytics,
                           color: Colors.indigo,
                         ),
@@ -133,7 +136,7 @@ class StatisticsPage extends StatelessWidget {
                       Expanded(
                         child: _StatItem(
                           title: 'Tek Oyunda En Çok',
-                          value: '7',
+                          value: _persistenceService.getMaxPistiInGame().toString(),
                           icon: Icons.rocket_launch,
                           color: Colors.red,
                         ),
@@ -314,11 +317,12 @@ class StatisticsPage extends StatelessWidget {
             child: Text('İptal'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
+              await _persistenceService.resetStatistics();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('İstatistik sıfırlama özelliği yakında gelecek!'),
+                  content: Text('İstatistikler sıfırlandı!'),
                 ),
               );
             },

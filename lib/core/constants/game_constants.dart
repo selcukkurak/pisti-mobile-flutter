@@ -65,6 +65,7 @@ class GameMessages {
   static const String confirmReset = 'Bu oyunu bitirip yeni bir oyun başlatmak istediğinize emin misiniz?';
   static const String cancel = 'İptal';
   static const String confirm = 'Onayla';
+  static const String restart = 'Yeniden Başlat';
   static const String emptyTable = 'Masa Boş';
   static const String yourTurn = 'Sıra Sizde';
   static const String opponentTurn = 'Rakip Oynuyor';

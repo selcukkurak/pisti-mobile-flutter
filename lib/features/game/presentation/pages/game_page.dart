@@ -125,12 +125,19 @@ class GamePage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Oyunu Yeniden Başlat'),
-        content: Text('Bu oyunu bitirip yeni bir oyun başlatmak istediğinize emin misiniz?'),
+        title: Text(GameMessages.resetGame),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              GameMessages.confirmReset,
+            ),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('İptal'),
+            child: Text(GameMessages.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -138,7 +145,7 @@ class GamePage extends StatelessWidget {
               context.read<GameBloc>().add(ResetGameEvent());
               Navigator.pop(context); // Go back to menu
             },
-            child: Text('Yeniden Başlat'),
+            child: Text(GameMessages.restart),
           ),
         ],
       ),
@@ -150,7 +157,7 @@ class GamePage extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text('Oyun Bitti'),
+        title: Text(GameMessages.gameOverMessage),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -174,7 +181,7 @@ class GamePage extends StatelessWidget {
               Navigator.pop(context); // Go back to menu
               context.read<GameBloc>().add(ResetGameEvent());
             },
-            child: Text('Ana Menü'),
+            child: Text(GameMessages.mainMenu),
           ),
           TextButton(
             onPressed: () {
@@ -186,7 +193,7 @@ class GamePage extends StatelessWidget {
                 playerName: 'Oyuncu',
               ));
             },
-            child: Text('Yeni Oyun'),
+            child: Text(GameMessages.newGame),
           ),
         ],
       ),
