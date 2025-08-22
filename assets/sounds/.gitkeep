@@ -1,0 +1,9 @@
+# Sound assets placeholder file
+# Sound files will be added here:
+# - card_flip.mp3
+# - card_place.mp3
+# - pisti_sound.mp3
+# - game_start.mp3
+# - game_end.mp3
+
+# This file ensures the directory is tracked by git

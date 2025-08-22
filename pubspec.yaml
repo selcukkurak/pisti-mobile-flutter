@@ -1,21 +1,41 @@
 name: pisti_mobile_flutter
-version: 1.0.0
+description: A traditional Turkish card game Pişti built with Flutter
+version: 1.0.0+1
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.17.0 <4.0.0"
+  flutter: ">=3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  flutter_bloc: ^8.0.0
-  firebase_core: ^2.0.0
-  cloud_firestore: ^3.0.0
-  firebase_auth: ^4.0.0
-  google_mobile_ads: ^2.0.0
-  shared_preferences: ^3.0.0
-  audioplayers: ^1.0.0
+  flutter_bloc: ^8.1.0
+  firebase_core: ^2.15.0
+  cloud_firestore: ^4.8.4
+  firebase_auth: ^4.7.2
+  google_mobile_ads: ^3.0.0
+  shared_preferences: ^2.2.0
+  audioplayers: ^5.0.0
   flutter_localizations:
     sdk: flutter
+  equatable: ^2.0.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
 
 flutter:
   uses-material-design: true
+  
+  assets:
+    - assets/sounds/
+    - assets/images/
+  
+  # Fonts
+  fonts:
+    - family: Pişti
+      fonts:
+        - asset: fonts/Roboto-Regular.ttf
+        - asset: fonts/Roboto-Bold.ttf
+          weight: 700
