@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/models/playing_card.dart';
 import 'playing_card_widget.dart';
+import '../../../core/constants/game_constants.dart';
 
 class GameTableWidget extends StatelessWidget {
   final List<PlayingCard> tableCards;
@@ -71,8 +72,8 @@ class GameTableWidget extends StatelessWidget {
               angle: (i * 0.1) - 0.05,
               child: PlayingCardWidget(
                 card: tableCards[i],
-                width: 100,
-                height: 140,
+                width: GameConstants.gameTableCardWidth,
+                height: GameConstants.gameTableCardHeight,
               ),
             ),
           ),
@@ -91,7 +92,7 @@ class GameTableWidget extends StatelessWidget {
         ),
         SizedBox(height: 16),
         Text(
-          'Masa Boş',
+          GameMessages.emptyTable,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Theme.of(context).colorScheme.outline.withOpacity(0.7),
           ),
@@ -103,7 +104,7 @@ class GameTableWidget extends StatelessWidget {
   Widget _buildPistiEffect() {
     return Positioned.fill(
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 1000),
+        duration: Duration(milliseconds: GameConstants.pistiEffectDuration),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
@@ -129,7 +130,7 @@ class GameTableWidget extends StatelessWidget {
               ],
             ),
             child: Text(
-              'PİŞTİ! 🎉',
+              GameMessages.pistiMessage,
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,

@@ -3,6 +3,8 @@ import '../../domain/models/game_state.dart';
 import '../../domain/models/player.dart';
 import '../../domain/models/playing_card.dart';
 import '../../domain/models/deck.dart';
+import '../../../core/services/sound_service.dart';
+import '../../../core/constants/game_constants.dart';
 
 // Events
 abstract class GameEvent {}
@@ -41,7 +43,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   void _onStartGame(StartGameEvent event, Emitter<GameState> emit) {
     final players = [
       Player(id: '1', name: event.playerName, isHuman: true),
-      Player(id: '2', name: 'Bilgisayar', isHuman: false),
+      Player(id: '2', name: GameConstants.aiPlayerName, isHuman: false),
     ];
 
     _deck = Deck();
@@ -59,12 +61,15 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     // Deal initial cards
     _dealCards(newState);
 
+    // Play game start sound
+    SoundType.gameStart.play();
+
     emit(newState.copyWith(phase: GamePhase.playing));
   }
 
   void _dealCards(GameState gameState) {
     // Deal 4 cards to each player
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < GameConstants.cardsPerHand; i++) {
       for (final player in gameState.players) {
         final card = _deck.drawCard();
         if (card != null) {
@@ -74,8 +79,20 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     }
 
     // Place 4 cards on table
-    final tableCards = _deck.drawCards(4);
+    final tableCards = _deck.drawCards(GameConstants.cardsOnTableAtStart);
+    gameState.tableCards.clear();
     gameState.tableCards.addAll(tableCards);
+    
+    // If there are any Jacks on the table, put them at the bottom and draw new cards
+    while (gameState.tableCards.any((card) => card.rank == CardRank.jack)) {
+      final jackIndex = gameState.tableCards.indexWhere((card) => card.rank == CardRank.jack);
+      final jack = gameState.tableCards.removeAt(jackIndex);
+      // Put jack back in deck (at bottom)
+      final newCard = _deck.drawCard();
+      if (newCard != null) {
+        gameState.tableCards.add(newCard);
+      }
+    }
   }
 
   void _onPlayCard(PlayCardEvent event, Emitter<GameState> emit) {
@@ -102,6 +119,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
             playedCard.rank == topCard.rank && 
             playedCard.rank != CardRank.jack) {
           isPisti = true;
+          SoundType.pisti.play();
+        } else {
+          SoundType.capture.play();
         }
 
         // Capture all cards
@@ -113,6 +133,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
     if (!captured) {
       newTableCards.add(playedCard);
+      SoundType.cardPlace.play();
     }
 
     final newState = state.copyWith(
@@ -138,8 +159,16 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   }
 
   bool _isRoundOver(GameState gameState) {
-    return gameState.players.every((player) => !player.hasCards) &&
-           _deck.isEmpty;
+    // Round is over when all players have no cards and no more cards to deal
+    bool allPlayersEmpty = gameState.players.every((player) => !player.hasCards);
+    
+    // If players are empty but deck has cards, deal more cards
+    if (allPlayersEmpty && !_deck.isEmpty) {
+      _dealCards(gameState);
+      return false;
+    }
+    
+    return allPlayersEmpty && _deck.isEmpty;
   }
 
   void _endRound(GameState gameState) {
@@ -156,40 +185,73 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     final playerWithMostCards = gameState.players
         .where((p) => p.capturedCardCount == maxCards)
         .first;
-    playerWithMostCards.score += 3;
+    playerWithMostCards.score += GameConstants.majorityBonus;
 
-    // Check if game is over (first to reach 151 points)
+    // Check if game is over (first to reach winning score)
     final winner = gameState.players
-        .where((p) => p.score >= 151)
+        .where((p) => p.score >= GameConstants.winningScore)
         .isEmpty ? null : gameState.players
         .reduce((a, b) => a.score > b.score ? a : b);
 
     if (winner != null) {
       gameState.winnerId = winner.id;
       gameState.phase = GamePhase.gameEnd;
+      SoundType.gameEnd.play();
     }
   }
 
   void _playAITurn(GameState gameState, Emitter<GameState> emit) {
-    Future.delayed(Duration(milliseconds: 1000), () {
+    Future.delayed(Duration(milliseconds: GameConstants.aiThinkingTime), () {
       final aiPlayer = gameState.currentPlayer;
-      if (aiPlayer.hasCards && !aiPlayer.isHuman) {
-        // Simple AI: play first card that can capture, otherwise play first card
-        PlayingCard cardToPlay = aiPlayer.hand.first;
-        
-        if (gameState.tableCards.isNotEmpty) {
-          final topCard = gameState.tableCards.last;
-          final capturingCard = aiPlayer.hand
-              .where((card) => card.canCapture(topCard))
-              .firstOrNull;
-          if (capturingCard != null) {
-            cardToPlay = capturingCard;
-          }
-        }
-
+      if (aiPlayer.hasCards && !aiPlayer.isHuman && gameState.canPlayCard) {
+        PlayingCard cardToPlay = _selectBestAICard(aiPlayer, gameState);
         add(PlayCardEvent(cardToPlay));
       }
     });
+  }
+
+  PlayingCard _selectBestAICard(Player aiPlayer, GameState gameState) {
+    // AI strategy:
+    // 1. If can capture cards, prioritize high-value cards
+    // 2. If can make Pişti, do it
+    // 3. If table has one card and AI has same rank (not Jack), avoid playing it unless no choice
+    // 4. Play low-value cards when can't capture
+    
+    if (gameState.tableCards.isNotEmpty) {
+      final topCard = gameState.tableCards.last;
+      
+      // Find cards that can capture
+      final capturingCards = aiPlayer.hand
+          .where((card) => card.canCapture(topCard))
+          .toList();
+      
+      if (capturingCards.isNotEmpty) {
+        // If can make Pişti (table has exactly one card, and we have matching rank, not Jack)
+        if (gameState.tableCards.length == 1) {
+          final pistiCard = capturingCards
+              .where((card) => card.rank == topCard.rank && card.rank != CardRank.jack)
+              .firstOrNull;
+          if (pistiCard != null) {
+            return pistiCard; // Make Pişti!
+          }
+        }
+        
+        // Otherwise, play Jack if available (always good)
+        final jackCard = capturingCards
+            .where((card) => card.rank == CardRank.jack)
+            .firstOrNull;
+        if (jackCard != null) {
+          return jackCard;
+        }
+        
+        // Or play any capturing card
+        return capturingCards.first;
+      }
+    }
+    
+    // Can't capture, play lowest value card
+    aiPlayer.hand.sort((a, b) => a.points.compareTo(b.points));
+    return aiPlayer.hand.first;
   }
 
   void _onNextRound(NextRoundEvent event, Emitter<GameState> emit) {

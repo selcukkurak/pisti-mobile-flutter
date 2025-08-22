@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/models/playing_card.dart';
+import '../../../core/constants/game_constants.dart';
 
 class PlayingCardWidget extends StatelessWidget {
   final PlayingCard card;
@@ -15,8 +16,8 @@ class PlayingCardWidget extends StatelessWidget {
     this.isHidden = false,
     this.isSelected = false,
     this.onTap,
-    this.width = 80,
-    this.height = 120,
+    this.width = GameConstants.cardWidth,
+    this.height = GameConstants.cardHeight,
   }) : super(key: key);
 
   @override
@@ -24,18 +25,21 @@ class PlayingCardWidget extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
+        duration: Duration(milliseconds: GameConstants.cardAnimationDuration),
+        curve: Curves.easeInOut,
         width: width,
         height: height,
-        transform: Matrix4.identity()..scale(isSelected ? 1.1 : 1.0),
+        transform: Matrix4.identity()
+          ..scale(isSelected ? 1.1 : 1.0)
+          ..translate(0.0, isSelected ? -10.0 : 0.0),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
-                color: Colors.black26,
-                blurRadius: 4,
-                offset: Offset(0, 2),
+                color: isSelected ? Colors.blue.withOpacity(0.3) : Colors.black26,
+                blurRadius: isSelected ? 8 : 4,
+                offset: Offset(0, isSelected ? 4 : 2),
               ),
             ],
           ),

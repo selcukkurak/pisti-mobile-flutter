@@ -1,4 +1,5 @@
 import 'playing_card.dart';
+import '../../../core/constants/game_constants.dart';
 
 class Player {
   final String id;
@@ -35,13 +36,13 @@ class Player {
     capturedCards.addAll(cards);
     if (isPisti) {
       pistiCount++;
-      score += 10; // Pişti bonus
+      score += GameConstants.pistiBonus; // Pişti bonus
     }
     _calculateScore();
   }
 
   void _calculateScore() {
-    score = pistiCount * 10; // Pişti bonuses
+    score = pistiCount * GameConstants.pistiBonus; // Pişti bonuses
     
     // Add card points
     for (final card in capturedCards) {

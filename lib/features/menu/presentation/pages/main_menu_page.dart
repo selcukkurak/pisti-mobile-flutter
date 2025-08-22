@@ -5,6 +5,7 @@ import '../../../game/presentation/bloc/game_bloc.dart';
 import '../../../game/domain/models/game_state.dart';
 import '../../../settings/presentation/pages/settings_page.dart';
 import '../../../statistics/presentation/pages/statistics_page.dart';
+import '../../../../core/constants/game_constants.dart';
 
 class MainMenuPage extends StatelessWidget {
   @override
@@ -37,7 +38,7 @@ class MainMenuPage extends StatelessWidget {
                       ),
                       SizedBox(height: 16),
                       Text(
-                        'Pişti',
+                        GameConstants.appName,
                         style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -46,7 +47,7 @@ class MainMenuPage extends StatelessWidget {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Geleneksel Kart Oyunu',
+                        GameConstants.appDescription,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: Colors.white70,
                         ),
@@ -106,7 +107,7 @@ class MainMenuPage extends StatelessWidget {
     final gameBloc = context.read<GameBloc>();
     gameBloc.add(StartGameEvent(
       mode: GameMode.offline,
-      playerName: 'Oyuncu',
+      playerName: GameConstants.defaultPlayerName,
     ));
     
     Navigator.push(

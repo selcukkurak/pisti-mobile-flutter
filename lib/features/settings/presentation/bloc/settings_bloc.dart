@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import '../../services/sound_service.dart';
 
 // Events
 abstract class SettingsEvent {}
@@ -60,6 +61,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   }
 
   void _onChangeSound(ChangeSoundEvent event, Emitter<SettingsState> emit) {
+    SoundService().setSoundEnabled(event.soundEnabled);
     emit(state.copyWith(soundEnabled: event.soundEnabled));
   }
 }

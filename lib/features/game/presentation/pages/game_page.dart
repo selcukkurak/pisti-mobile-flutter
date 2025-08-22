@@ -7,13 +7,14 @@ import '../widgets/playing_card_widget.dart';
 import '../widgets/game_table_widget.dart';
 import '../widgets/player_hand_widget.dart';
 import '../widgets/game_score_widget.dart';
+import '../../../../core/constants/game_constants.dart';
 
 class GamePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pişti'),
+        title: Text(GameConstants.appName),
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
@@ -30,7 +31,7 @@ class GamePage extends StatelessWidget {
                   children: [
                     Icon(Icons.celebration, color: Colors.white),
                     SizedBox(width: 8),
-                    Text('Pişti! 🎉'),
+                    Text(GameMessages.pistiMessage),
                   ],
                 ),
                 backgroundColor: Colors.orange,

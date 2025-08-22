@@ -1,3 +1,5 @@
+import '../../../core/constants/game_constants.dart';
+
 enum CardSuit {
   hearts,
   diamonds,
@@ -34,13 +36,13 @@ class PlayingCard {
   int get points {
     switch (rank) {
       case CardRank.ace:
-        return 1;
+        return GameConstants.acePoints;
       case CardRank.jack:
-        return 1;
+        return GameConstants.jackPoints;
       case CardRank.two:
-        return suit == CardSuit.clubs ? 2 : 0;
+        return suit == CardSuit.clubs ? GameConstants.twoOfClubsPoints : 0;
       case CardRank.ten:
-        return suit == CardSuit.diamonds ? 3 : 0;
+        return suit == CardSuit.diamonds ? GameConstants.tenOfDiamondsPoints : 0;
       default:
         return 0;
     }
